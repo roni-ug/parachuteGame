@@ -9,8 +9,9 @@ const DROP_RATE = 300;
 const OPENNING_SCREEN = 1;
 const MAIN_GAME_SCREEN = 2;
 const END_SCREEN = 3;
-const leftArrow = '37';
-const rightArrow = '39';
+const LEFTARROW = '37';
+const RIGHTARROW = '39';
+const MARGIN  = 80;
 
 let GAME_ACTIVE = false;
 
@@ -24,9 +25,9 @@ const canvas = document.getElementById("canvas1").getContext("2d");
 
 
 
-// elementsData is an instance of the class ElementsData that stores the
+// gameElements is an instance of the class GameElements that stores the
 // multiple game elements, such as boat, parachute etc..
-let elementsData = new ElementsData();
+let gameElements = new GameElements();
 initializeGame();
 showGameOpeningScreen();
 document.onclick = handleGameResponseToMouseClick;
@@ -35,10 +36,10 @@ document.onkeydown = hadlePlayerResponseToKeyPressed;
 
 
 function showGameOpeningScreen() {
-	elementsData.newGameButton.sprite.image.onload = function() {
-		elementsData.backGroundScreen.draw();
-		elementsData.parachuteImageOfText.draw();
-		elementsData.newGameButton.draw();
+	gameElements.newGameButton.sprite.image.onload = function() {
+		gameElements.backGroundScreen.draw();
+		gameElements.parachuteImageOfText.draw();
+		gameElements.newGameButton.draw();
 	};
 
 };
@@ -64,23 +65,23 @@ function gameLoop() {
 };
 
 function showGameEndedScreen() {
-	elementsData.backGroundScreen.draw();
-	elementsData.gameOverImageOfText.draw();
-	elementsData.newGameButton.draw();
+	gameElements.backGroundScreen.draw();
+	gameElements.gameOverImageOfText.draw();
+	gameElements.newGameButton.draw();
 };
 
 
 // updates the movements and status of elements on screen
 function update() {
-	Object.keys(elementsData).forEach( function (key) {
-		elementsData[key].update();	
+	Object.keys(gameElements).forEach( function (key) {
+		gameElements[key].update();	
 	});
 };
 
 function draw(){
-	Object.keys(elementsData).forEach( function (key) {
-		if(elementsData[key].appearsInScreen == MAIN_GAME_SCREEN){
-			elementsData[key].draw();	
+	Object.keys(gameElements).forEach( function (key) {
+		if(gameElements[key].appearsInScreen == MAIN_GAME_SCREEN){
+			gameElements[key].draw();	
 		}		
 	});
 };
@@ -92,17 +93,17 @@ function handleGameResponseToMouseClick(event) {
 
 	let canvasX = event.pageX;
 	let canvasY = event.pageY;
-
+	let ClickedInButtonBoundsX = (canvasX >= gameElements.newGameButton.x &&  
+		canvasX <= gameElements.newGameButton.x + gameElements.newGameButton.width);
+	let ClickedInButtonBoundsY = (canvasY >= gameElements.newGameButton.y && 
+		canvasY <= gameElements.newGameButton.y + gameElements.newGameButton.height);
+	
 	if (!GAME_ACTIVE) {
 		//responds to pressing the new game button
-		if ((canvasX >= elementsData.newGameButton.x && 
-			canvasX <= elementsData.newGameButton.x + elementsData.newGameButton.width) && 
-			(canvasY >= elementsData.newGameButton.y && 
-			canvasY <= elementsData.newGameButton.y + elementsData.newGameButton.height)) {
-
+		if (ClickedInButtonBoundsX && ClickedInButtonBoundsY) {
 			GAME_ACTIVE = true;
 			initializeGame();
-			elementsData = new ElementsData();
+			gameElements = new GameElements();
 			refreshIntervalId = setInterval(gameLoop, 1000 / FPS);
 		}
 	}
@@ -117,16 +118,16 @@ function hadlePlayerResponseToKeyPressed(keyPressedEvent) {
 	
 	if (GAME_ACTIVE) {
 		// left arrow
-		if (keyPressedEvent.keyCode === leftArrow) {
-			elementsData.boat.x -= BOAT_SPEED;
+		if (keyPressedEvent.keyCode == LEFTARROW) {
+			gameElements.boat.x -= BOAT_SPEED;
 
 		}
 		// right arrow
-		else if (keyPressedEvent.keyCode === rightArrow) {
-			elementsData.boat.x += BOAT_SPEED;
+		else if (keyPressedEvent.keyCode == RIGHTARROW) {
+			gameElements.boat.x += BOAT_SPEED;
 		}
 		// makes sure the boat won't exit screen bounds
-		elementsData.boat.x = Math.min(Math.max(elementsData.boat.x, 0), CANVAS_WIDTH - elementsData.boat.width);
+		gameElements.boat.x = Math.min(Math.max(gameElements.boat.x, 0), CANVAS_WIDTH - gameElements.boat.width);
 	}
 
 };
